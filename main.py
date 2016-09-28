@@ -1,11 +1,13 @@
+# -*- coding: iso-8859-1 -*-
+
+import connection
 import requests
 import json
 from pprint import pprint
 
-r = requests.post("https://a.febijo.de/node/gettoken",
-                  data={'nutzer': 'chris', 'passwd': '1'})
-print(r.status_code, r.reason)
-decoded = json.loads(r.text)
-pprint (decoded)
-auth = decoded["token"]
-print auth
+conn = connection.Connection("https://a.febijo.de/node")
+
+#print conn.get_token("biber", "note")
+#print conn.auth
+#print conn.save_note(5, "Neue Python Note", "Dieses Notiz wurde über Python hochgeldaden", 123)
+#print conn.add_user("peter","pit")
