@@ -211,7 +211,7 @@ aktualisieren</property>
                     </child>
                     <child>
                       <object class="GtkButton" id="button6">
-                        <property name="label" translatable="yes">kommando</property>
+                        <property name="label" translatable="yes">notizen runterladen</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -251,6 +251,8 @@ aktualisieren</property>
                       <object class="GtkTreeView" id="treeview1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="reorderable">True</property>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection" id="treeview-selection1"/>
                         </child>
