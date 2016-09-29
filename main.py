@@ -1,12 +1,7 @@
 # -*- coding: iso-8859-1 -*-
-
-import connection
-import requests
-import json
-from pprint import pprint
 import mainWindow
 
-conn = connection.Connection("https://a.febijo.de/node")
+
 window = mainWindow.MainWindow()
 
 #print conn.get_token("biber", "note")
