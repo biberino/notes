@@ -1,5 +1,8 @@
 # -*- coding: iso-8859-1 -*-
 from gi.repository import Gtk, Gdk
+from dialogs import createNote
+from dialogs import createNotebook
+from dialogs import connectServer
 
 class MainWindow:
 
@@ -18,7 +21,7 @@ class MainWindow:
         self.treeview.set_model(self.store)
 
 
-        column = Gtk.TreeViewColumn("Notizbücher")
+        column = Gtk.TreeViewColumn("Notizen")
         name = Gtk.CellRendererText()
         besitzer = Gtk.CellRendererText()
         nID = Gtk.CellRendererText()
@@ -39,10 +42,37 @@ class MainWindow:
 
 
     #------ callbacks
+    def on_buttonServer_clicked(self,*args):
+        c = connectServer.ConnectDialog()
+        print (c.valid)
+        print (c.user)
+        print (c.passwd)
+
+    def on_buttonNotebook_clicked(self,*args):
+        n = createNotebook.CreateNotebookDialog()
+        print (n.valid)
+        print (n.titel)
+
+
+    def on_buttonNoteNew_clicked(self,*args):
+        n = createNote.CreateNoteDialog("","")
+        print (n.valid)
+        print (n.titel)
+        print (n.beschreibung)
+
+    def on_buttonNoteUpdate_clicked(self,*args):
+        n = createNote.CreateNoteDialog("","")
+        print (n.valid)
+        print (n.titel)
+        print (n.beschreibung)
+
+
+
+
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
         if treeiter != None:
-            self.selectedNID = model[treeiter][2]
+            self.selecetedNID = model[treeiter][2]
 
     def on_mainWindow_destroy(self, *args):
         Gtk.main_quit()

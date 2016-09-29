@@ -5,3 +5,7 @@ todo
 dialogs/connectServer.glade~
 dialogs/createNote.glade~
 dialogs/createNotebook.glade~
+dialogs/__init__.pyc
+dialogs/connectServer.pyc
+dialogs/createNote.pyc
+dialogs/createNotebook.pyc
