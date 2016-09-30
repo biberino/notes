@@ -14,6 +14,7 @@ class MainWindow:
     def __init__(self):
         self.conn = connection.Connection("https://a.febijo.de/node")
         # parse config file
+        self.currentUser = ""
         self.readConfig()
 
         # key: index in combobox, value: id
@@ -29,6 +30,7 @@ class MainWindow:
         self.currentNID = -1
 
 
+
         self.builder = Gtk.Builder()
         self.builder.add_from_file("mainWindow.glade")
         self.builder.connect_signals(self)
@@ -37,6 +39,7 @@ class MainWindow:
         self.comboNotebooks = self.builder.get_object("comboNotebooks")
         self.lblTitle = self.builder.get_object("lblTitle")
         self.lblBeschreibung = self.builder.get_object("lblBeschreibung")
+        self.lblUser = self.builder.get_object("lblUser")
 
         select = self.treeview.get_selection()
         select.connect("changed", self.on_tree_selection_changed)
@@ -63,6 +66,7 @@ class MainWindow:
 
         if self.autologin:
             self.get_notebooks_from_server()
+            self.display_current_user(self.currentUser)
         Gtk.main()
 
     def readConfig(self):
@@ -72,6 +76,7 @@ class MainWindow:
         config = ConfigParser.ConfigParser()
         config.read("default.cfg")
         self.conn.auth = config.get("a", "auth")
+        self.currentUser = config.get("a","name")
         self.autologin = True
 
 
@@ -138,8 +143,16 @@ class MainWindow:
             conf = ConfigParser.ConfigParser()
             conf.add_section("a")
             conf.set("a", "auth", self.conn.auth)
+            conf.set("a","name",c.user)
             conf.write(cfgfile)
             cfgfile.close()
+            self.display_current_user(c.user)
+            self.currentUser = c.user
+
+    def display_current_user(self,user):
+        s = "Angemeldet: <span color='green'>"+user+"</span>"
+        self.lblUser.set_markup(s)
+
 
     def on_buttonNotebook_clicked(self, *args):
         n = createNotebook.CreateNotebookDialog()
@@ -197,9 +210,9 @@ class MainWindow:
 
     def on_tree_selection_changed(self, selection):
         model, treeiter = selection.get_selected()
-        self.selecetedTitle = "Wilkommen"
-        self.notesDict["Wilkommen"] = note.Note(
-            "Wilkommen", self.welcome, "1", 999)
+        self.selecetedTitle = "Willkommen"
+        self.notesDict["Willkommen"] = note.Note(
+            "Willkommen", self.welcome, "1", 999)
 
         if treeiter != None:
             self.selecetedTitle = model[treeiter][0]  # name

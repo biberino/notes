@@ -7,10 +7,27 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-network</property>
   </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-floppy</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-new</property>
+  </object>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-edit</property>
+  </object>
   <object class="GtkWindow" id="mainWindow">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Bibernote V0.01</property>
+    <property name="default_width">600</property>
+    <property name="default_height">400</property>
     <signal name="destroy" handler="on_mainWindow_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
@@ -37,6 +54,18 @@
               </packing>
             </child>
             <child>
+              <object class="GtkLabel" id="lblUser">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_markup">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkComboBoxText" id="comboNotebooks">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -51,7 +80,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -60,21 +89,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="image">image2</property>
                 <signal name="clicked" handler="on_buttonNotebook_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="buttonNoteNew">
-                <property name="label" translatable="yes">Neue Notiz anlegen</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_buttonNoteNew_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -83,17 +99,33 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="buttonNoteUpdate">
-                <property name="label" translatable="yes">Notiz bearbeiten</property>
+              <object class="GtkButton" id="buttonNoteNew">
+                <property name="label" translatable="yes">Neue Notiz anlegen</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_buttonNoteUpdate_clicked" swapped="no"/>
+                <property name="image">image3</property>
+                <signal name="clicked" handler="on_buttonNoteNew_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonNoteUpdate">
+                <property name="label" translatable="yes">Notiz bearbeiten</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">image4</property>
+                <signal name="clicked" handler="on_buttonNoteUpdate_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </object>
@@ -181,12 +213,26 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="lblBeschreibung">
+                      <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-Sehr wichtig
+                        <property name="can_focus">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkViewport" id="viewport1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkLabel" id="lblBeschreibung">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">-Sehr wichtig
 -noch wichtiger</property>
-                        <property name="use_markup">True</property>
+                                <property name="use_markup">True</property>
+                                <property name="selectable">True</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>

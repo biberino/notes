@@ -10,3 +10,4 @@ dialogs/connectServer.pyc
 dialogs/createNote.pyc
 dialogs/createNotebook.pyc
 note.pyc
+default.cfg
