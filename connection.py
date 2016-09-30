@@ -4,11 +4,12 @@ import json
 
 class Connection:
 
-    auth = ""
-    url = ""
+
 
     def __init__(self, serverUrl):
         self.url = serverUrl
+        self.auth = ""
+        
 
     def get_token(self, nutzer, passwd):
         requestString = self.url + "/gettoken"
