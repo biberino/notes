@@ -11,6 +11,7 @@ import note
 
 class MainWindow:
 
+
     def __init__(self):
         self.conn = connection.Connection("https://a.febijo.de/node")
         # parse config file
@@ -28,8 +29,6 @@ class MainWindow:
         self.lastNotesResponse = ""
 
         self.currentNID = -1
-
-
 
         self.builder = Gtk.Builder()
         self.builder.add_from_file("mainWindow.glade")
@@ -76,9 +75,8 @@ class MainWindow:
         config = ConfigParser.ConfigParser()
         config.read("default.cfg")
         self.conn.auth = config.get("a", "auth")
-        self.currentUser = config.get("a","name")
+        self.currentUser = config.get("a", "name")
         self.autologin = True
-
 
     def get_notebooks_from_server(self):
         res = self.conn.get_notebooks()
@@ -143,16 +141,15 @@ class MainWindow:
             conf = ConfigParser.ConfigParser()
             conf.add_section("a")
             conf.set("a", "auth", self.conn.auth)
-            conf.set("a","name",c.user)
+            conf.set("a", "name", c.user)
             conf.write(cfgfile)
             cfgfile.close()
             self.display_current_user(c.user)
             self.currentUser = c.user
 
-    def display_current_user(self,user):
-        s = "Angemeldet: <span color='green'>"+user+"</span>"
+    def display_current_user(self, user):
+        s = "Angemeldet: <span color='green'>" + user + "</span>"
         self.lblUser.set_markup(s)
-
 
     def on_buttonNotebook_clicked(self, *args):
         n = createNotebook.CreateNotebookDialog()
