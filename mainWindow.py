@@ -3,6 +3,7 @@ from gi.repository import Gtk, Gdk
 from dialogs import createNote
 from dialogs import createNotebook
 from dialogs import connectServer
+from dialogs import showMsg
 import ConfigParser
 import os
 import connection
@@ -102,6 +103,7 @@ class MainWindow:
         res = self.conn.get_notes(nID)
         if res is -100:
             print ("No Server connection possible")
+            showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
             return
         if res < 0:
             print (res)
@@ -125,6 +127,7 @@ class MainWindow:
             res = self.conn.get_token(c.user, c.passwd)
             if res is -100:
                 print ("Verbindung ging schief")
+                showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
                 return
             if res < 0:
                 print (res)
@@ -165,6 +168,7 @@ class MainWindow:
 
     def on_buttonNoteNew_clicked(self, *args):
         if self.currentNID is -1:
+            showMsg.MessageBox("Wähle ein Notizbuch aus bevor du eine Notiz erstellst")
             return
         n = createNote.CreateNoteDialog("", "")
         # TODO add custom priority
@@ -183,8 +187,10 @@ class MainWindow:
 
     def on_buttonNoteUpdate_clicked(self, *args):
         if self.currentNID is -1:
+            showMsg.MessageBox("Wähle ein Notizbuch aus bevor du Notizen änderst")
             return
         if self.selecetedTitle is "Willkommen":
+            showMsg.MessageBox("Wähle eine Notiz aus, die du ändern möchtest")
             return
 
         beschr = self.notesDict[self.selecetedTitle].beschreibung
@@ -197,6 +203,7 @@ class MainWindow:
                                     self.selecetedTitle].notizID)
         if res is -100:
             print ("Fehler beim Verbinden mitm Sever")
+            showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
             return
         if res < 0:
             print (res)

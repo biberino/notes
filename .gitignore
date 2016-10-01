@@ -11,3 +11,5 @@ dialogs/createNote.pyc
 dialogs/createNotebook.pyc
 note.pyc
 default.cfg
+dialogs/showMsg.pyc
+dialogs/message.glade~
