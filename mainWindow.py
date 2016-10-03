@@ -14,7 +14,6 @@ from thread import start_new_thread
 
 class MainWindow:
 
-
     def __init__(self):
         self.conn = connection.Connection("https://a.febijo.de/node")
         # parse config file
@@ -45,6 +44,17 @@ class MainWindow:
         self.spinnerServer = self.builder.get_object("spinnerServer")
         self.lblBottom = self.builder.get_object("lblBottom")
 
+        background_color_basic = '#FCFFA5'
+        selected_color = '#3F3FFF'
+        self.modifyBackgroundColor(
+            self.lblBeschreibung, background_color_basic, Gtk.StateFlags.NORMAL)
+        self.modifyBackgroundColor(
+            self.treeview, background_color_basic, Gtk.StateFlags.NORMAL)
+        self.modifyForegroundColor(
+            self.treeview, selected_color, Gtk.StateFlags.SELECTED)
+        self.modifyForegroundColor(
+            self.lblBeschreibung, selected_color, Gtk.StateFlags.SELECTED)
+
         select = self.treeview.get_selection()
         select.connect("changed", self.on_tree_selection_changed)
 
@@ -58,15 +68,15 @@ class MainWindow:
         columnP = Gtk.TreeViewColumn("Priorität")
         name = Gtk.CellRendererText()
         prio = Gtk.CellRendererText()
-        #nID = Gtk.CellRendererText()
+        # nID = Gtk.CellRendererText()
 
         columnN.pack_start(name, True)
         columnP.pack_start(prio, True)
-        #column.pack_start(nID, True)
+        # column.pack_start(nID, True)
 
         columnN.add_attribute(name, "text", 0)
         columnP.add_attribute(prio, "text", 1)
-        #column.add_attribute(nID, "text", 2)
+        # column.add_attribute(nID, "text", 2)
         self.treeview.append_column(columnN)
         self.treeview.append_column(columnP)
 
@@ -86,8 +96,7 @@ class MainWindow:
         self.autologin = True
 
     def get_notebooks_from_server(self):
-        start_new_thread(self.get_notebooks_thread_caller,(None,))
-
+        start_new_thread(self.get_notebooks_thread_caller, (None,))
 
     def get_notebooks_thread_caller(self, *args):
         self.spinnerServer.start()
@@ -108,18 +117,19 @@ class MainWindow:
     #------ callbacks
 
     def on_comboboxtextentry_changed(self, *args):
-        start_new_thread(self.get_notes_thread,(None,))
+        start_new_thread(self.get_notes_thread, (None,))
 
     def get_notes_thread(self, *args):
-        #print (self.comboNotebooks.get_active_text())
-        #print (self.comboNotebooks.get_active())
+        # print (self.comboNotebooks.get_active_text())
+        # print (self.comboNotebooks.get_active())
         self.spinnerServer.start()
         nID = self.notebookDict[(self.comboNotebooks.get_active())]
         self.currentNID = nID
         res = self.conn.get_notes(nID)
         if res is -100:
             print ("No Server connection possible")
-            showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
+            showMsg.MessageBox(
+                "Es konnte keine Verbindung zum Server hergestellt werden")
             self.spinnerServer.stop()
             return
         if res < 0:
@@ -136,9 +146,10 @@ class MainWindow:
             a = note.Note(res[i]["titel"], res[i]["beschreibung"], str(
                 res[i][u'priorit\xe4t']), res[i]["id"])
             self.store.append([res[i]["titel"], str(res[i][u'priorit\xe4t'])])
-            #self.notesDict[res[i]["titel"]] = res[i]["beschreibung"]
+            # self.notesDict[res[i]["titel"]] = res[i]["beschreibung"]
             self.notesDict[res[i]["titel"]] = a
-        self.say("Alle Notizen aus <span color='red'>"+self.comboNotebooks.get_active_text()+"</span> geladen!")
+        self.say("Alle Notizen aus <span color='red'>" +
+                 self.comboNotebooks.get_active_text() + "</span> geladen!")
         self.spinnerServer.stop()
 
     def on_buttonServer_clicked(self, *args):
@@ -147,7 +158,8 @@ class MainWindow:
             res = self.conn.get_token(c.user, c.passwd)
             if res is -100:
                 print ("Verbindung ging schief")
-                showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
+                showMsg.MessageBox(
+                    "Es konnte keine Verbindung zum Server hergestellt werden")
                 return
             if res < 0:
                 print (res)
@@ -174,8 +186,8 @@ class MainWindow:
         s = "Angemeldet: <span color='green'>" + user + "</span>"
         self.lblUser.set_markup(s)
 
-    def say(self,msg):
-        message = "<span size='10000' color='blue'>"+msg+"</span>"
+    def say(self, msg):
+        message = "<span size='10000' color='blue'>" + msg + "</span>"
         self.lblBottom.set_markup(message)
 
     def on_buttonNotebook_clicked(self, *args):
@@ -192,7 +204,8 @@ class MainWindow:
 
     def on_buttonNoteNew_clicked(self, *args):
         if self.currentNID is -1:
-            showMsg.MessageBox("Wähle ein Notizbuch aus bevor du eine Notiz erstellst")
+            showMsg.MessageBox(
+                "Wähle ein Notizbuch aus bevor du eine Notiz erstellst")
             return
         n = createNote.CreateNoteDialog("", "")
         # TODO add custom priority
@@ -209,17 +222,28 @@ class MainWindow:
             print (res)
         self.on_comboboxtextentry_changed()
 
+    def modifyBackgroundColor(self, w, cHex, stateFlag):
+        rgba = Gdk.RGBA()
+        rgba.parse(cHex)
+        w.override_background_color(stateFlag, rgba)
+
+    def modifyForegroundColor(self, w, cHex, stateFlag):
+        rgba = Gdk.RGBA()
+        rgba.parse(cHex)
+        w.override_color(stateFlag, rgba)
 
     def on_buttonNoteUpdate_clicked(self, *args):
         if self.currentNID is -1:
-            showMsg.MessageBox("Wähle ein Notizbuch aus bevor du Notizen änderst")
+            showMsg.MessageBox(
+                "Wähle ein Notizbuch aus bevor du Notizen änderst")
             return
         if self.selecetedTitle is "Willkommen":
-            showMsg.MessageBox("Wähle eine Notiz aus, die du ändern möchtest")
+            showMsg.MessageBox(
+                "Wähle eine Notiz aus, die du ändern möchtest")
             return
 
-        #set the currentNID and notizID here, before calling the window
-        notebookID = self.currentNID;
+        # set the currentNID and notizID here, before calling the window
+        notebookID = self.currentNID
         notizIDlocal = self.notesDict[self.selecetedTitle].notizID
         beschr = self.notesDict[self.selecetedTitle].beschreibung
         n = createNote.CreateNoteDialog(self.selecetedTitle, beschr)
@@ -227,10 +251,12 @@ class MainWindow:
         if not n.valid:
             return
 
-        res = self.conn.update_note(notebookID, n.titel, n.beschreibung, "1", notizIDlocal)
+        res = self.conn.update_note(
+            notebookID, n.titel, n.beschreibung, "1", notizIDlocal)
         if res is -100:
             print ("Fehler beim Verbinden mitm Sever")
-            showMsg.MessageBox("Es konnte keine Verbindung zum Server hergestellt werden")
+            showMsg.MessageBox(
+                "Es konnte keine Verbindung zum Server hergestellt werden")
             return
         if res < 0:
             print (res)
@@ -249,7 +275,7 @@ class MainWindow:
             self.selecetedTitle = model[treeiter][0]  # name
 
         self.lblTitle.set_markup(
-            "<span size='22800'> " + self.selecetedTitle + "</span>")
+            "<span size='22800' color='grey'> " + self.selecetedTitle + "</span>")
         self.lblBeschreibung.set_markup(
             "<span size='12800'>" + self.notesDict[self.selecetedTitle].beschreibung + "</span>")
 
