@@ -4,10 +4,12 @@ from dialogs import createNote
 from dialogs import createNotebook
 from dialogs import connectServer
 from dialogs import showMsg
+from user import user
 import ConfigParser
 import os
-import connection
+#import connection
 import note
+import json
 
 from thread import start_new_thread
 
@@ -15,18 +17,13 @@ from thread import start_new_thread
 class MainWindow:
 
     def __init__(self):
-        self.conn = connection.Connection("https://a.febijo.de/node")
+        self.user = user.User()
+        #self.conn = connection.Connection("https://a.febijo.de/node")
         # parse config file
         self.currentUser = ""
-        self.readConfig()
+        self.user.readConfig()
 
-        # key: index in combobox, value: id
-        self.notebookDict = {}
-
-        # key: title of note, value: noteobject
-        self.notesDict = {}
         # welcome message
-        self.welcome = "Melde dich an und wähle ein Notizbuch um loszulegen :)"
         # saves server responses for later use
         self.lastNotesResponse = ""
 
@@ -80,13 +77,14 @@ class MainWindow:
         self.treeview.append_column(columnN)
         self.treeview.append_column(columnP)
 
-        if self.autologin:
+        if self.user.autologin:
             self.get_notebooks_from_server()
-            self.display_current_user(self.currentUser)
+            self.display_current_user(self.user.name)
         Gtk.main()
 
     def readConfig(self):
-        self.autologin = False
+        # TODO remove
+        pass
         if not os.path.isfile('default.cfg'):
             return
         config = ConfigParser.ConfigParser()
@@ -100,87 +98,50 @@ class MainWindow:
 
     def get_notebooks_thread_caller(self, *args):
         self.spinnerServer.start()
-        res = self.conn.get_notebooks()
-        print (res)
-        if res < 0:
-            print ("Problem")
-            return
-
-        self.comboNotebooks.remove_all()
-        self.notebookDict.clear()
-        for i in range(0, len(res)):
-            print (res[i]["name"])
-            self.comboNotebooks.append_text(res[i]["name"])
-            self.notebookDict[i] = res[i]["id"]
-        self.say("Alle Notizbücher heruntergeladen!")
+        res = self.user.get_notebooks(self.comboNotebooks)
+        if res is 0:
+            self.say("Alle Notizbücher heruntergeladen!")
         self.spinnerServer.stop()
     #------ callbacks
 
     def on_comboboxtextentry_changed(self, *args):
         start_new_thread(self.get_notes_thread, (None,))
 
+    def test(self):
+        with open('test.txt', 'w') as outfile:
+            json.dump(self.notesDict[self.selectedTitle].__dict__, outfile)
+
     def get_notes_thread(self, *args):
         # print (self.comboNotebooks.get_active_text())
         # print (self.comboNotebooks.get_active())
         self.spinnerServer.start()
-        nID = self.notebookDict[(self.comboNotebooks.get_active())]
-        self.currentNID = nID
-        res = self.conn.get_notes(nID)
-        if res is -100:
-            print ("No Server connection possible")
-            showMsg.MessageBox(
-                "Es konnte keine Verbindung zum Server hergestellt werden")
-            self.spinnerServer.stop()
-            return
-        if res < 0:
-            print (res)
-            print ("Error")
-            self.spinnerServer.stop()
-            return
-        # alles ok
-        self.lastNotesResponse = res
-        self.store.clear()
-        self.notesDict.clear()
-        for i in range(0, len(res)):
-            # construct new object
-            a = note.Note(res[i]["titel"], res[i]["beschreibung"], str(
-                res[i][u'priorit\xe4t']), res[i]["id"])
-            self.store.append([res[i]["titel"], str(res[i][u'priorit\xe4t'])])
-            # self.notesDict[res[i]["titel"]] = res[i]["beschreibung"]
-            self.notesDict[res[i]["titel"]] = a
-        self.say("Alle Notizen aus <span color='red'>" +
-                 self.comboNotebooks.get_active_text() + "</span> geladen!")
+        res = self.user.get_notes(self.comboNotebooks,
+                             self.spinnerServer, self.store)
+        if res is 0:
+            self.say("Alle Notizen aus <span color='red'>" +
+                     self.comboNotebooks.get_active_text() + "</span> geladen!")
         self.spinnerServer.stop()
 
     def on_buttonServer_clicked(self, *args):
-        c = connectServer.ConnectDialog()
-        if c.valid:
-            res = self.conn.get_token(c.user, c.passwd)
-            if res is -100:
-                print ("Verbindung ging schief")
-                showMsg.MessageBox(
-                    "Es konnte keine Verbindung zum Server hergestellt werden")
-                return
-            if res < 0:
-                print (res)
-                print("Vielleicht falsche Anmeldeinfos?")
-                return
-            # ab hier müsste das token da sein
-            self.get_notebooks_from_server()
-            # speichere auth token ab
+        res = self.user.authenticate()
+        if res is 1:
+            return
+        self.get_notebooks_from_server()
+        # speichere auth token ab
 
-            print (self.conn.auth)
-            # create file
-            cfgfile = open("default.cfg", 'w')
+        self.user.writeConfig()
+        #print (self.conn.auth)
+        # create file
+        #cfgfile = open("default.cfg", 'w')
 
-            conf = ConfigParser.ConfigParser()
-            conf.add_section("a")
-            conf.set("a", "auth", self.conn.auth)
-            conf.set("a", "name", c.user)
-            conf.write(cfgfile)
-            cfgfile.close()
-            self.display_current_user(c.user)
-            self.currentUser = c.user
+        #conf = ConfigParser.ConfigParser()
+        # conf.add_section("a")
+        #conf.set("a", "auth", self.conn.auth)
+        #conf.set("a", "name", c.user)
+        # conf.write(cfgfile)
+        # cfgfile.close()
+        self.display_current_user(user.name)
+        #self.currentUser = c.user
 
     def display_current_user(self, user):
         s = "Angemeldet: <span color='green'>" + user + "</span>"
@@ -191,36 +152,14 @@ class MainWindow:
         self.lblBottom.set_markup(message)
 
     def on_buttonNotebook_clicked(self, *args):
-        n = createNotebook.CreateNotebookDialog()
-        if not n.valid:
-            return
-        print (n.titel)
-        res = self.conn.create_notebook(n.titel)
+        res = self.user.add_notebook()
         if res is 0:
-            print("Erfolgreich")
-        else:
-            print (res)
-        self.get_notebooks_from_server()
+            self.get_notebooks_from_server()
 
     def on_buttonNoteNew_clicked(self, *args):
-        if self.currentNID is -1:
-            showMsg.MessageBox(
-                "Wähle ein Notizbuch aus bevor du eine Notiz erstellst")
-            return
-        n = createNote.CreateNoteDialog("", "")
-        # TODO add custom priority
-        prio = 1
-
-        if not n.valid:
-            return
-
-        res = self.conn.save_note(
-            self.currentNID, n.titel, n.beschreibung, prio)
+        res = self.user.create_new_note()
         if res is 0:
-            print ("Erfolgreich")
-        else:
-            print (res)
-        self.on_comboboxtextentry_changed()
+            self.on_comboboxtextentry_changed()
 
     def modifyBackgroundColor(self, w, cHex, stateFlag):
         rgba = Gdk.RGBA()
@@ -233,51 +172,15 @@ class MainWindow:
         w.override_color(stateFlag, rgba)
 
     def on_buttonNoteUpdate_clicked(self, *args):
-        if self.currentNID is -1:
-            showMsg.MessageBox(
-                "Wähle ein Notizbuch aus bevor du Notizen änderst")
-            return
-        if self.selecetedTitle is "Willkommen":
-            showMsg.MessageBox(
-                "Wähle eine Notiz aus, die du ändern möchtest")
-            return
-
-        # set the currentNID and notizID here, before calling the window
-        notebookID = self.currentNID
-        notizIDlocal = self.notesDict[self.selecetedTitle].notizID
-        beschr = self.notesDict[self.selecetedTitle].beschreibung
-        n = createNote.CreateNoteDialog(self.selecetedTitle, beschr)
-
-        if not n.valid:
-            return
-
-        res = self.conn.update_note(
-            notebookID, n.titel, n.beschreibung, "1", notizIDlocal)
-        if res is -100:
-            print ("Fehler beim Verbinden mitm Sever")
-            showMsg.MessageBox(
-                "Es konnte keine Verbindung zum Server hergestellt werden")
-            return
-        if res < 0:
-            print (res)
-            return
-        # alles ok
-        print ("Erfolgreich")
-        self.on_comboboxtextentry_changed()
+        res = self.user.update_note()
+        if res is 0:
+            # alles ok
+            print ("Erfolgreich")
+            self.on_comboboxtextentry_changed()
 
     def on_tree_selection_changed(self, selection):
-        model, treeiter = selection.get_selected()
-        self.selecetedTitle = "Willkommen"
-        self.notesDict["Willkommen"] = note.Note(
-            "Willkommen", self.welcome, "1", 999)
+        self.user.update_selected_note(selection, self.lblTitle, self.lblBeschreibung)
 
-        if treeiter != None:
-            self.selecetedTitle = model[treeiter][0]  # name
-
-        self.lblTitle.set_markup(
-            "<span size='22800' color='grey'> " + self.selecetedTitle + "</span>")
-        self.lblBeschreibung.set_markup(
-            "<span size='12800'>" + self.notesDict[self.selecetedTitle].beschreibung + "</span>")
 
     def on_mainWindow_destroy(self, *args):
         Gtk.main_quit()
