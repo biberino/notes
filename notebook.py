@@ -10,7 +10,9 @@ class NoteBook(object):
     def add_note(self,note):
         #check if note is not in dict
 
+        if note.notizID in self.noteDict:
+            #nothing to do
+            return
 
         #add note
         self.noteDict[note.notizID] = note
-        

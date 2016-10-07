@@ -51,11 +51,14 @@ class MainWindow:
             self.treeview, selected_color, Gtk.StateFlags.SELECTED)
         self.modifyForegroundColor(
             self.lblBeschreibung, selected_color, Gtk.StateFlags.SELECTED)
+        self.modifyBackgroundColor(
+            self.lblTitle, background_color_basic, Gtk.StateFlags.NORMAL)
+
 
         select = self.treeview.get_selection()
         select.connect("changed", self.on_tree_selection_changed)
 
-        self.store = Gtk.ListStore(str, str)
+        self.store = Gtk.ListStore(str, str, str)
 
         self.treeview.set_model(self.store)
 
@@ -63,19 +66,27 @@ class MainWindow:
 
         columnN = Gtk.TreeViewColumn("Notiz")
         columnP = Gtk.TreeViewColumn("Priorität")
+        columnD = Gtk.TreeViewColumn("Erstellt am")
+
+        columnN.set_resizable(True)
+        columnP.set_resizable(True)
+        columnD.set_resizable(True)
+
         name = Gtk.CellRendererText()
         prio = Gtk.CellRendererText()
-        # nID = Gtk.CellRendererText()
+        date = Gtk.CellRendererText()
 
         columnN.pack_start(name, True)
         columnP.pack_start(prio, True)
-        # column.pack_start(nID, True)
+        columnD.pack_start(date, True)
 
         columnN.add_attribute(name, "text", 0)
         columnP.add_attribute(prio, "text", 1)
-        # column.add_attribute(nID, "text", 2)
+        columnD.add_attribute(date, "text", 2)
+
         self.treeview.append_column(columnN)
         self.treeview.append_column(columnP)
+        self.treeview.append_column(columnD)
 
         if self.user.autologin:
             self.get_notebooks_from_server()

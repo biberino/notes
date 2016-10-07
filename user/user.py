@@ -24,7 +24,6 @@ class User():
         self.selectedTitle = "Willkommen"
         self.welcome = "Melde dich an und wähle ein Notizbuch um loszulegen :)"
 
-
     def update_selected_note(self, selection, lblTitle, lblBeschreibung):
         model, treeiter = selection.get_selected()
         self.selectedTitle = "Willkommen"
@@ -114,7 +113,11 @@ class User():
             # construct new object
             a = note.Note(res[i]["titel"], res[i]["beschreibung"], str(
                 res[i][u'priorit\xe4t']), res[i]["id"])
-            store.append([res[i]["titel"], str(res[i][u'priorit\xe4t'])])
+            #format date from database
+            created = res[i]["angelegt"]
+            created = created.split("T")[0]
+            store.append([res[i]["titel"], str(
+                res[i][u'priorit\xe4t']), created])
             # self.notesDict[res[i]["titel"]] = res[i]["beschreibung"]
             self.notesDict[res[i]["titel"]] = a
         # self.say("Alle Notizen aus <span color='red'>" +
@@ -149,7 +152,7 @@ class User():
         else:
             print (res)
 
-    def authenticate():
+    def authenticate(self):
         c = connectServer.ConnectDialog()
         if c.valid:
             res = self.conn.get_token(c.user, c.passwd)
@@ -162,7 +165,9 @@ class User():
                 print (res)
                 print("Vielleicht falsche Anmeldeinfos?")
                 return 1
+            self.name = c.user
             return 0
+        return 1
 
     def readConfig(self):
         self.autologin = False
@@ -176,11 +181,10 @@ class User():
 
     def writeConfig(self):
         cfgfile = open("default.cfg", 'w')
-
+        #self.name = username
         conf = ConfigParser.ConfigParser()
         conf.add_section("a")
         conf.set("a", "auth", self.conn.auth)
         conf.set("a", "name", self.name)
         conf.write(cfgfile)
         cfgfile.close()
-        self.name = username
