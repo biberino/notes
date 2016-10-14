@@ -9,12 +9,12 @@ class Connection:
     def __init__(self, serverUrl):
         self.url = serverUrl
         self.auth = ""
-        
+
 
     def get_token(self, nutzer, passwd):
         requestString = self.url + "/gettoken"
         r = requests.post(requestString,
-                          data={'nutzer': nutzer, 'passwd': passwd})
+                          data={'nutzer': nutzer, 'passwd': passwd},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -30,7 +30,7 @@ class Connection:
     def save_note(self, nID, titel, beschreibung, prio):
         requestString = self.url + "/savenotes"
         r = requests.post(requestString,
-                          data={'auth': self.auth, 'nID': nID, 'titel': titel, 'beschreibung': beschreibung, 'prio': prio})
+                          data={'auth': self.auth, 'nID': nID, 'titel': titel, 'beschreibung': beschreibung, 'prio': prio},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -46,7 +46,7 @@ class Connection:
     def create_notebook(self, titel):
         requestString = self.url + "/createnotebook"
         r = requests.post(requestString,
-                          data={'auth': self.auth, 'titel': titel})
+                          data={'auth': self.auth, 'titel': titel},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -62,7 +62,7 @@ class Connection:
     def add_user(self, name,passwd):
         requestString = self.url + "/adduser"
         r = requests.post(requestString,
-                          data={'auth': self.auth, 'name': name, 'passwd': passwd})
+                          data={'auth': self.auth, 'name': name, 'passwd': passwd},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -78,7 +78,7 @@ class Connection:
     def update_note(self, nID, titel, beschreibung, prio, notizID):
         requestString = self.url + "/savenotes"
         r = requests.post(requestString,
-                          data={'auth': self.auth, 'nID': nID, 'titel': titel, 'beschreibung': beschreibung, 'prio': prio, 'notizID': notizID})
+                          data={'auth': self.auth, 'nID': nID, 'titel': titel, 'beschreibung': beschreibung, 'prio': prio, 'notizID': notizID},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -94,7 +94,7 @@ class Connection:
     def get_notes(self, nID):
         requestString = self.url + "/notes"
         r = requests.post(requestString,
-                          data={'auth':self.auth, 'nID':nID})
+                          data={'auth':self.auth, 'nID':nID},verify=False)
 
         if r.status_code is not 200:
             return -100
@@ -109,7 +109,7 @@ class Connection:
     def get_notebooks(self):
         requestString = self.url + "/notebooks"
         r = requests.post(requestString,
-                          data={'auth':self.auth})
+                          data={'auth':self.auth},verify=False)
 
         if r.status_code is not 200:
             return -100
