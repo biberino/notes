@@ -140,7 +140,7 @@ class User():
         #self.say("Alle Notizbücher heruntergeladen!")
         return 0
 
-    def add_notebook():
+    def add_notebook(self):
         n = createNotebook.CreateNotebookDialog()
         if not n.valid:
             return 1
